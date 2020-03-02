@@ -1,0 +1,80 @@
+header:
+  CDL:
+    includes: []
+  SPECTRE:
+    includes: []
+  VERILOG:
+    includes: []
+  SYSVERILOG:
+    includes: []
+
+mos:
+  CDL:
+    - [l, l]
+    - [nfin, w]
+    - [nf, nf]
+    - [m, '1']
+  SPECTRE:
+    - [l, l]
+    - [nfin, w]
+    - [nf, nf]
+    - [m, '1']
+  VERILOG: []
+  SYSVERILOG: []
+  types:
+    - [nmos4_18, n2svt]
+    - [nmos4_svt, n1svt]
+    - [nmos4_lvt, n1lvt]
+    - [nmos4_hvt, n1hvt]
+    - [nmos4_standard, n1svt]
+    - [nmos4_fast, n1lvt]
+    - [nmos4_low_power, n1hvt]
+    - [pmos4_18, p2svt]
+    - [pmos4_svt, p1svt]
+    - [pmos4_lvt, p1lvt]
+    - [pmos4_hvt, p1hvt]
+    - [pmos4_standard, p1svt]
+    - [pmos4_fast, p1lvt]
+    - [pmos4_low_power, p1hvt]
+
+diode:
+  CDL: []
+  SPECTRE: []
+  VERILOG: []
+  SYSVERILOG: []
+  static: False
+  types:
+    - [ndio_standard, ndio]
+    - [pdio_standard, pdio]
+  port_order:
+    ndio_standard: [PLUS, MINUS]
+    pdio_standard: [PLUD, MINUS]
+
+res_metal:
+  CDL:
+    - [l, l]
+    - [w, w]
+  SPECTRE:
+    - [l, l]
+    - [w, w]
+  VERILOG: []
+  SYSVERILOG: []
+  types:
+    - [res_metal_1, '$[resm1]']
+    - [res_metal_2, '$[resm2]']
+    - [res_metal_3, '$[resm3]']
+    - [res_metal_4, '$[resm4]']
+    - [res_metal_5, '$[resm5]']
+    - [res_metal_6, '$[resm6]']
+    - [res_metal_7, '$[resm7]']
+    - [res_metal_8, '$[resmt]']
+  write_res_val: True
+  res_map:
+    1: 0.0736
+    2: 0.0604
+    3: 0.0604
+    4: 0.0604
+    5: 0.0604
+    6: 0.0604
+    7: 0.0604
+    8: 0.0214
