@@ -1,0 +1,9 @@
+#cadence base libraries
+DEFINE     analogLib    $CDSHOME/tools/dfII/etc/cdslib/artist/analogLib
+DEFINE     basic        $CDSHOME/tools/dfII/etc/cdslib/basic
+
+#technology base libraries
+DEFINE     cds_ff_mpt   $BAG_TECH_CONFIG_DIR/workspace_setup/PDK/cds_ff_mpt
+
+# BAG Libraries
+INCLUDE $BAG_WORK_DIR/cds.lib.bag

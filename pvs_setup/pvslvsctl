@@ -1,0 +1,28 @@
+text_depth -primary;
+virtual_connect -colon yes;
+virtual_connect -semicolon_as_colon no;
+virtual_connect -noname;
+virtual_connect -report no;
+virtual_connect -depth -primary;
+lvs_ignore_ports no;
+lvs_compare_port_names yes;
+lvs_expand_cell_on_error no;
+lvs_recognize_gates -none;
+lvs_break_ambig_max 32;
+lvs_abort -softchk no;
+lvs_abort -supply_error no;
+lvs_power_name "VDD";
+lvs_ground_name "VSS";
+lvs_find_shorts no;
+lvs_filter_device R(SH) -short -source
+sconnect_upper_shape_count no;
+lvs_report_file "{{ cell_name }}.rep";
+lvs_report_max 50 -mismatched_net_limit 100;
+lvs_run_erc_checks yes;
+lvs_report_opt -none;
+report_summary -erc "{{ cell_name }}.sum" -replace;
+max_results -erc 1000;
+results_db -erc "{{ cell_name }}.erc_errors.ascii" -ascii;
+mask_svdb_dir "svdb";
+keep_layers -none;
+abort_on_layout_error yes;

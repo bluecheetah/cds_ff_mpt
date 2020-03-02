@@ -1,0 +1,16 @@
+tt:
+  - !!python/tuple ['${BAG_TECH_CONFIG_DIR}/workspace_setup/PDK/models/spectre/cds_ff_mpt.scs', 'tt']
+ff:
+  - !!python/tuple ['${BAG_TECH_CONFIG_DIR}/workspace_setup/PDK/models/spectre/cds_ff_mpt.scs', 'ff']
+ss:
+  - !!python/tuple ['${BAG_TECH_CONFIG_DIR}/workspace_setup/PDK/models/spectre/cds_ff_mpt.scs', 'ss']
+sf:
+  - !!python/tuple ['${BAG_TECH_CONFIG_DIR}/workspace_setup/PDK/models/spectre/cds_ff_mpt.scs', 'sf']
+fs:
+  - !!python/tuple ['${BAG_TECH_CONFIG_DIR}/workspace_setup/PDK/models/spectre/cds_ff_mpt.scs', 'fs']
+mc:
+  - !!python/tuple ['${BAG_TECH_CONFIG_DIR}/workspace_setup/PDK/models/spectre/cds_ff_mpt.scs', 'mc']
+mc_lvt:
+  - !!python/tuple ['${BAG_TECH_CONFIG_DIR}/workspace_setup/PDK/models/spectre/cds_ff_mpt.scs', 'mc_lvt']
+mc_hvt:
+  - !!python/tuple ['${BAG_TECH_CONFIG_DIR}/workspace_setup/PDK/models/spectre/cds_ff_mpt.scs', 'mc_hvt']
