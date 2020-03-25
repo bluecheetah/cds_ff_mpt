@@ -384,7 +384,7 @@ mos:
   # MP height
   mp_h: 80
   # MP and PO overlap
-  mp_po_ovlx: 32
+  mp_po_extx: 20
   # vertical space between MP
   mp_spy: 68
   # space bewteen MP and MD
@@ -395,7 +395,7 @@ mos:
   # normal CPO height
   cpo_h:
     lch: [.inf]
-    val: [120]
+    val: [140]
   # horizontal extension of CPO beyond PO
   cpo_po_extx:
     lch: [.inf]
@@ -419,7 +419,7 @@ mos:
   # MD width
   md_w:
     lch: [.inf]
-    val: [80]
+    val: [60]
   # vertical extension of MD over OD
   md_od_exty:
     lch: [.inf]

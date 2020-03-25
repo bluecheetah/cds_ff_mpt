@@ -127,9 +127,10 @@ class MOSTechCDSFFMPT(MOSTech):
         lch = self.lch
         sd_pitch = self.sd_pitch
         od_po_extx = self.od_po_extx
-        imp_od_encx = self.imp_od_encx
 
-        od_spx: int = self.mos_config['od_spx']
+        mos_config = self.mos_config
+        od_spx: int = mos_config['od_spx']
+        imp_od_encx: int = mos_config['imp_od_encx']
 
         od_spx = max(od_spx, 2 * imp_od_encx)
         return -(-(od_spx + lch + 2 * od_po_extx) // sd_pitch) - 1
@@ -159,17 +160,6 @@ class MOSTechCDSFFMPT(MOSTech):
     def od_po_extx(self) -> int:
         val: Tuple[int, int, int] = self.mos_config['od_po_extx_constants']
         return val[0] + (val[1] * self.lch + val[2] * self.sd_pitch) // 2
-
-    @property
-    def imp_od_encx(self) -> int:
-        lch = self.lch
-        sd_pitch = self.sd_pitch
-        od_po_extx = self.od_po_extx
-
-        val: int = self.mos_config['imp_od_encx']
-
-        delta = od_po_extx + (lch - sd_pitch) // 2
-        return -(-(val + delta) // sd_pitch) * sd_pitch - delta
 
     @property
     def has_cpo(self) -> bool:
@@ -250,7 +240,18 @@ class MOSTechCDSFFMPT(MOSTech):
                 for lay, vm_w in grid_info if conn_layer <= lay <= top_layer]
 
     def get_edge_width(self, mos_arr_width: int, blk_pitch: int) -> int:
-        return self.mos_config['edge_margin'] + self.sd_pitch
+        lch = self.lch
+        sd_pitch = self.sd_pitch
+        od_po_extx = self.od_po_extx
+
+        mos_config = self.mos_config
+        edge_margin: int = mos_config['edge_margin']
+        imp_od_encx: int = mos_config['imp_od_encx']
+
+        od_extx = od_po_extx - (sd_pitch - lch) // 2
+
+        num_sd = -(-(od_extx + imp_od_encx) // sd_pitch)
+        return edge_margin + num_sd * sd_pitch
 
     def get_conn_yloc_info(self, conn_layer: int, md_yb: int, md_yt: int, is_sub: bool
                            ) -> MOSConnYInfo:
@@ -405,7 +406,7 @@ class MOSTechCDSFFMPT(MOSTech):
         sd_pitch = self.sd_pitch
 
         mp_h: int = self.mos_config['mp_h']
-        mp_po_ovlx: int = self.mos_config['mp_po_ovlx']
+        mp_po_extx: int = self.mos_config['mp_po_extx']
         md_w: int = self.mos_config['md_w']
 
         mos_lay_table = self.tech_info.config['mos_lay_table']
@@ -414,8 +415,6 @@ class MOSTechCDSFFMPT(MOSTech):
         g_info = self.get_conn_info(1, True)
         d_info = self.get_conn_info(1, False)
 
-        sep_g = options.get('sep_g', False)
-        sparse_g = options.get('sparse_g', conn_layer != 1)
         export_mid = options.get('export_mid', False)
         export_mid = export_mid and stack == 2
 
@@ -432,63 +431,21 @@ class MOSTechCDSFFMPT(MOSTech):
         num_d = (seg + 1) // 2
         s_xc = 0
         d_xc = wire_pitch
-        if sparse_g:
-            if g_on_s:
-                g_xc = s_xc
-                num_g = num_s
-            else:
-                g_xc = d_xc
-                num_g = num_d
-            g_pitch = conn_pitch
+        if g_on_s:
+            num_g = fg // 2 + 1
+            g_xc = 0
         else:
-            if g_on_s:
-                num_g = fg // 2 + 1
-                g_xc = 0
-            else:
-                num_g = (fg + 1) // 2
-                g_xc = sd_pitch
-            g_pitch = 2 * sd_pitch
+            num_g = (fg + 1) // 2
+            g_xc = sd_pitch
+        g_pitch = 2 * sd_pitch
 
         builder = LayoutInfoBuilder()
         bbox = self._get_mos_active_rect_list(builder, row_info, fg, w, row_info.row_type)
 
         # Connect gate to MP
-        if sep_g:
-            blk_w = fg * sd_pitch
-            mp_po_dx = (sd_pitch - lch) // 2 + mp_po_ovlx
-            if g_on_s:
-                via_x0 = sd_pitch * 2
-
-                mp_v0_dx = g_info.via_w // 2 + g_info.via_bot_enc
-                # add MP on first and last poly
-                builder.add_rect_arr(mp_lp, BBox(-mp_v0_dx, mp_yb, mp_po_dx, mp_yt))
-                if fg & 1:
-                    num_mp = num_g - 1
-                else:
-                    builder.add_rect_arr(mp_lp, BBox(blk_w - mp_po_dx, mp_yb,
-                                                     blk_w + mp_v0_dx, mp_yt))
-                    num_mp = num_g - 2
-            else:
-                via_x0 = sd_pitch
-                num_mp = num_g
-
-            builder.add_rect_arr(mp_lp, BBox(via_x0 - mp_po_dx, mp_yb, via_x0 + mp_po_dx, mp_yt),
-                                 nx=num_mp, spx=2 * sd_pitch)
-        else:
-            if g_on_s:
-                mp_xl = g_xc
-                if fg % 2 == 1:
-                    mp_xr = (sd_pitch - lch) // 2 + (fg - 1) * sd_pitch + mp_po_ovlx
-                else:
-                    mp_xr = fg * sd_pitch
-            else:
-                mp_xl = (sd_pitch + lch) // 2 - mp_po_ovlx
-                if fg % 2 == 1:
-                    mp_xr = fg * sd_pitch if fg > 1 else g_xc
-                else:
-                    mp_xr = (sd_pitch - lch) // 2 + (fg - 1) * sd_pitch + mp_po_ovlx
-
-            builder.add_rect_arr(mp_lp, BBox(mp_xl, mp_yb, mp_xr, mp_yt))
+        mp_po_dx = (sd_pitch + lch) // 2 + mp_po_extx
+        builder.add_rect_arr(mp_lp, BBox(g_xc - mp_po_dx, mp_yb, g_xc + mp_po_dx, mp_yt),
+                             nx=num_g, spx=g_pitch)
 
         # connect gate to M1.
         mp_yc = (mp_yb + mp_yt) // 2
@@ -541,7 +498,7 @@ class MOSTechCDSFFMPT(MOSTech):
         sd_pitch = self.sd_pitch
 
         mp_h: int = self.mos_config['mp_h']
-        mp_po_ovlx: int = self.mos_config['mp_po_ovlx']
+        mp_po_extx: int = self.mos_config['mp_po_extx']
         md_w: int = self.mos_config['md_w']
 
         mos_lay_table = self.tech_info.config['mos_lay_table']
@@ -559,18 +516,54 @@ class MOSTechCDSFFMPT(MOSTech):
 
         fg = seg
         num_wire = seg + 1
+        num_po = num_wire + 1
 
         builder = LayoutInfoBuilder()
         bbox = self._get_mos_active_rect_list(builder, row_info, fg, row_info.sub_width, sub_type)
 
         # Connect gate to MP
         mp_yc = (mp_yb + mp_yt) // 2
-        mp_xl = (sd_pitch + lch) // 2 - mp_po_ovlx
-        mp_xr = (sd_pitch - lch) // 2 + (fg - 1) * sd_pitch + mp_po_ovlx
-        builder.add_rect_arr(mp_lp, BBox(mp_xl, mp_yb, mp_xr, mp_yt))
-        # connect gate to M1.
-        builder.add_via(g_info.get_via_info('M1_LiPo', 0, mp_yc, mp_h,
-                                            nx=num_wire, spx=sd_pitch))
+        mp_delta = (sd_pitch + lch) // 2 + mp_po_extx
+        if num_po & 1:
+            num_vg = num_po // 2
+            if num_vg & 1:
+                # we have 3 PO left over in the middle
+                num_vg2 = (num_vg - 1) // 2
+                num_vgm = 2
+            else:
+                # we have 5 PO left over in the middle
+                num_vg2 = (num_vg - 2) // 2
+                num_vgm = 4
+            # draw middle vg
+            vgm_x = bbox.xm - ((num_vgm - 1) * sd_pitch) // 2
+            mp_xl = vgm_x - mp_delta
+            mp_xr = vgm_x + (num_vgm - 1) * sd_pitch + mp_delta
+            builder.add_rect_arr(mp_lp, BBox(mp_xl, mp_yb, mp_xr, mp_yt),
+                                 nx=num_vgm, spx=sd_pitch)
+            builder.add_via(g_info.get_via_info('M1_LiPo', vgm_x, mp_yc, mp_h,
+                                                nx=num_vgm, spx=sd_pitch))
+            # draw left/right vg
+            if num_vg2 > 0:
+                vg_pitch = 2 * sd_pitch
+
+                def _add_vg_half(vg_x: int) -> None:
+                    xl = vg_x - mp_delta
+                    xr = vg_x + (num_vg2 - 1) * vg_pitch + mp_delta
+                    builder.add_rect_arr(mp_lp, BBox(xl, mp_yb, xr, mp_yt),
+                                         nx=num_vg2, spx=vg_pitch)
+                    builder.add_via(g_info.get_via_info('M1_LiPo', vg_x, mp_yc, mp_h,
+                                                        nx=num_vg2, spx=vg_pitch))
+
+                _add_vg_half(0)
+                _add_vg_half((num_wire - 1) * sd_pitch - (num_vg2 - 1) * vg_pitch)
+        else:
+            # even number of PO, can connect pair-wise
+            num_vg = num_po // 2
+            vg_pitch = 2 * sd_pitch
+            builder.add_rect_arr(mp_lp, BBox(-mp_delta, mp_yb, mp_delta, mp_yt),
+                                 nx=num_vg, spx=vg_pitch)
+            builder.add_via(g_info.get_via_info('M1_LiPo', 0, mp_yc, mp_h,
+                                                nx=num_vg, spx=vg_pitch))
 
         # connect drain/source to M1
         m1_yc = (md_yb + md_yt) // 2
@@ -595,7 +588,8 @@ class MOSTechCDSFFMPT(MOSTech):
         lch = self.lch
         sd_pitch = self.sd_pitch
         od_po_extx = self.od_po_extx
-        imp_od_encx = self.imp_od_encx
+
+        imp_od_encx: int = self.mos_config['imp_od_encx']
 
         mos_lay_table = self.tech_info.config['mos_lay_table']
         po_lp = mos_lay_table['PO_DUMMY']
@@ -779,6 +773,11 @@ class MOSTechCDSFFMPT(MOSTech):
                               ) -> LayoutInfo:
         lch = self.lch
         sd_pitch = self.sd_pitch
+        od_po_extx = self.od_po_extx
+        od_extx = od_po_extx - (sd_pitch - lch) // 2
+
+        mos_config = self.mos_config
+        imp_od_encx: int = mos_config['imp_od_encx']
 
         mos_lay_table = self.tech_info.config['mos_lay_table']
 
@@ -789,7 +788,7 @@ class MOSTechCDSFFMPT(MOSTech):
         has_od = einfo.get('has_od', False)
 
         blk_rect = BBox(0, 0, blk_w, blk_h)
-        imp_rect = BBox(blk_w - sd_pitch, 0, blk_w, blk_h)
+        imp_rect = BBox(blk_w - imp_od_encx - od_extx, 0, blk_w, blk_h)
         po_xl = blk_w - sd_pitch // 2 - lch // 2
         builder = LayoutInfoBuilder()
         if has_od:
