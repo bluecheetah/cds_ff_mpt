@@ -133,7 +133,8 @@ class MOSTechCDSFFMPT(MOSTech):
         imp_od_encx: int = mos_config['imp_od_encx']
 
         od_spx = max(od_spx, 2 * imp_od_encx)
-        return -(-(od_spx + lch + 2 * od_po_extx) // sd_pitch) - 1
+        ans = -(-(od_spx + lch + 2 * od_po_extx) // sd_pitch) - 1
+        return ans + (ans & 1)
 
     @property
     def min_sub_col(self) -> int:
