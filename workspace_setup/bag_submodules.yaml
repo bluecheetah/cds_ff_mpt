@@ -1,6 +1,15 @@
 BAG_framework:
-  url: git@github.com:bluecheetah/bag.git
-  branch: master
-xbase:
-  url: git@github.com:bluecheetah/xbase.git
-  branch: master
+  url: git@github.com:ucb-art/BAG_framework.git
+  branch: bag3
+bag_serdes_ec:
+  url: git@github.com:ucb-art/bag_serdes_ec.git
+  branch: bag3
+bag_testbenches_ec:
+  url: git@github.com:ucb-art/bag_testbenches_ec.git
+  branch: bag3
+bag_digital_ec:
+  url: git@github.com:ucb-art/bag_digital_ec.git
+  branch: bag3
+BAG_XBase_demo:
+  url: git@github.com:ucb-art/BAG_XBase_demo.git
+  branch: bag3

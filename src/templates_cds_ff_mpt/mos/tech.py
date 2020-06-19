@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Tuple, Optional, FrozenSet, List
+from typing import Tuple, Optional, FrozenSet, List, Mapping, Any
 
 from dataclasses import dataclass
 from itertools import chain
@@ -97,8 +97,8 @@ class MOSConnYInfo:
 class MOSTechCDSFFMPT(MOSTech):
     ignore_vm_sp_le_layers: FrozenSet[str] = frozenset(('m1',))
 
-    def __init__(self, tech_info: TechInfo, lch: int, mos_entry_name: str = 'mos') -> None:
-        MOSTech.__init__(self, tech_info, lch, mos_entry_name)
+    def __init__(self, tech_info: TechInfo, lch: int, arr_options: Mapping[str, Any]) -> None:
+        MOSTech.__init__(self, tech_info, lch, arr_options)
 
     @property
     def blk_h_pitch(self) -> int:
@@ -539,8 +539,7 @@ class MOSTechCDSFFMPT(MOSTech):
             vgm_x = bbox.xm - ((num_vgm - 1) * sd_pitch) // 2
             mp_xl = vgm_x - mp_delta
             mp_xr = vgm_x + (num_vgm - 1) * sd_pitch + mp_delta
-            builder.add_rect_arr(mp_lp, BBox(mp_xl, mp_yb, mp_xr, mp_yt),
-                                 nx=num_vgm, spx=sd_pitch)
+            builder.add_rect_arr(mp_lp, BBox(mp_xl, mp_yb, mp_xr, mp_yt))
             builder.add_via(g_info.get_via_info('M1_LiPo', vgm_x, mp_yc, mp_h,
                                                 nx=num_vgm, spx=sd_pitch))
             # draw left/right vg
@@ -549,7 +548,7 @@ class MOSTechCDSFFMPT(MOSTech):
 
                 def _add_vg_half(vg_x: int) -> None:
                     xl = vg_x - mp_delta
-                    xr = vg_x + (num_vg2 - 1) * vg_pitch + mp_delta
+                    xr = vg_x + mp_delta
                     builder.add_rect_arr(mp_lp, BBox(xl, mp_yb, xr, mp_yt),
                                          nx=num_vg2, spx=vg_pitch)
                     builder.add_via(g_info.get_via_info('M1_LiPo', vg_x, mp_yc, mp_h,
@@ -589,6 +588,10 @@ class MOSTechCDSFFMPT(MOSTech):
         lch = self.lch
         sd_pitch = self.sd_pitch
         od_po_extx = self.od_po_extx
+
+        if num_cols < self.min_sep_col and left_info and right_info:
+            # cannot draw less than min_sep_col between two devices
+            raise ODImplantEnclosureError(f'Cannot draw MOSSpace in {num_cols} columns.')
 
         imp_od_encx: int = self.mos_config['imp_od_encx']
 

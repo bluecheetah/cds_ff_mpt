@@ -49,7 +49,7 @@ database:
     template:
       drc: ''
       lvs: '${BAG_TECH_CONFIG_DIR}/pvs_setup/pvslvsctl'
-      rcx: ''
+      rcx: '${BAG_TECH_CONFIG_DIR}/qrc_setup/qrc.custom.cmd'
     # environment variables
     env_vars:
       drc: {}
@@ -59,7 +59,8 @@ database:
       drc: []
       lvs:
         - ['${BAG_TECH_CONFIG_DIR}/pvs_setup/pvs_rules', 'pvs_rules']
-      rcx: []
+      rcx:
+        - '${BAG_TECH_CONFIG_DIR}/qrc_setup/qrc.tech.lib'
     # default parameters
     params:
       drc: {}

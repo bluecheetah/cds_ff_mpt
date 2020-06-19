@@ -6,6 +6,7 @@ export PEGASUS_HOME=/tools/cadence/PEGASUS184
 export SRR_HOME=/tools/cadence/SRR
 # export CDS_INST_DIR=/tools/cadence/IC618
 export SPECTRE_HOME=/tools/cadence/SPECTRE181
+export QRC_HOME=/tools/cadence/EXT191
 export INNOVUSHOME=/tools/cadence/installs/INNOVUS181
 export CDSLIB_HOME=/tools/bag3/programs/cdsLibPlugin
 export BAG_TOOLS_ROOT=/tools/bag3/core
@@ -31,12 +32,13 @@ export PATH=${CDS_INST_DIR}/tools/plot/bin:${PATH}
 export PATH=${CDS_INST_DIR}/tools/dfII/bin:${PATH}
 export PATH=${CDS_INST_DIR}/tools/bin:${PATH}
 export PATH=${MMSIM_HOME}/bin:${PATH}
+export PATH=${QRC_HOME}/bin:${PATH}
 export PATH=${LATEX_BIN}:${PATH}
 export PATH=${BAG_TOOLS_ROOT}/bin:${PATH}
 
 # LD_LIBRARY_PATH setup
-export LD_LIBRARY_PATH=${CDSLIB_TOOL}/lib/64bit:${LD_LIBRARY_PATH}
-export LD_LIBRARY_PATH=${SRR_HOME}/tools/lib/64bit:${LD_LIBRARY_PATH:-}
+export LD_LIBRARY_PATH=${CDSLIB_TOOL}/lib/64bit:${LD_LIBRARY_PATH:-}
+export LD_LIBRARY_PATH=${SRR_HOME}/tools/lib/64bit:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH=${OA_LINK_DIR}:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH=${BAG_TOOLS_ROOT}/lib64:${LD_LIBRARY_PATH}
 export LD_LIBRARY_PATH=${BAG_TOOLS_ROOT}/lib:${LD_LIBRARY_PATH}
